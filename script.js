@@ -1,11 +1,11 @@
-// Artículos (sin TDAH, con videos funcionales)
+// ======================== ARTÍCULOS (sin TDAH, con videos funcionales) ========================
 const articlesData = [
   {
     id: 1,
     title: "Coaching ontológico: cómo transformar creencias limitantes",
     category: "coaching",
     excerpt: "El lenguaje crea realidades. Descubrí cómo cambiar tus conversaciones internas para expandir tu potencial.",
-    content: `<p>El coaching ontológico nos enseña que no actuamos según la realidad, sino según nuestra interpretación de ella. Frases como "no soy suficiente" o "no sirvo para esto" son juicios aprendidos. A través de la indagación, podemos modificar el observador que llevamos dentro. En este artículo comparto 3 preguntas poderosas para desafiar creencias: ¿Qué evidencia tengo? ¿Quién dijo eso? ¿Qué nueva acción podría tomar si creyera lo contrario?</p><div class="video-responsive"><iframe src="https://www.youtube.com/embed/2Vv-BfVoq4g" title="YouTube video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div><p>Un cambio de postura corporal y de vocabulario puede abrir caminos inesperados.</p>`,
+    content: `<p>El coaching ontológico nos enseña que no actuamos según la realidad, sino según nuestra interpretación de ella. Frases como "no soy suficiente" o "no sirvo para esto" son juicios aprendidos. A través de la indagación, podemos modificar el observador que llevamos dentro. En este artículo comparto 3 preguntas poderosas para desafiar creencias: ¿Qué evidencia tengo? ¿Quién dijo eso? ¿Qué nueva acción podría tomar si creyera lo contrario?</p><p>Un cambio de postura corporal y de vocabulario puede abrir caminos inesperados.</p>`,
     image: null,
     videoId: "2Vv-BfVoq4g",
     date: "2026-04-05"
@@ -35,7 +35,7 @@ const articlesData = [
     title: "Comunicación consciente en pareja y familia (video)",
     category: "coaching",
     excerpt: "Aprender a validar emociones sin juicios transforma los vínculos.",
-    content: `<p>Desde el coaching ontológico trabajamos la escucha activa y la responsabilidad afectiva. Te comparto la técnica del 'mensaje yo': en lugar de decir 'tú nunca me escuchas', decí 'cuando no me miras mientras hablo, me siento invisible'. Pequeños cambios lingüísticos que abren puertas al diálogo. Practicá en tus relaciones cotidianas y notarás la diferencia.</p><div class="video-responsive"><iframe src="https://www.youtube.com/embed/kspDB9J3P0w" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div><p>Este video complementa la explicación con ejemplos prácticos.</p>`,
+    content: `<p>Desde el coaching ontológico trabajamos la escucha activa y la responsabilidad afectiva. Te comparto la técnica del 'mensaje yo': en lugar de decir 'tú nunca me escuchas', decí 'cuando no me miras mientras hablo, me siento invisible'. Pequeños cambios lingüísticos que abren puertas al diálogo. Practicá en tus relaciones cotidianas y notarás la diferencia.</p><p>Este artículo incluye un video complementario.</p>`,
     image: null,
     videoId: "kspDB9J3P0w",
     date: "2026-04-01"
@@ -62,6 +62,12 @@ const articlesData = [
   }
 ];
 
+// Miniaturas de YouTube (para tarjetas)
+function getYouTubeThumbnail(videoId) {
+  return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+}
+
+// Base de datos curiosos
 const curiositiesDB = [
   { text: "El cerebro humano tiene aproximadamente 86 mil millones de neuronas. ¡Cada una puede conectarse con hasta 10,000 otras!", source: "Neurociencia Cognitiva" },
   { text: "La dislexia puede traer ventajas en pensamiento tridimensional y resolución creativa de problemas.", source: "Estudios de Yale" },
@@ -76,6 +82,7 @@ let currentPage = 1;
 let filteredPosts = [...articlesData];
 let currentFilter = "all";
 
+// DOM Elements
 const postsGrid = document.getElementById("postsGrid");
 const loadMoreContainer = document.getElementById("loadMoreContainer");
 const loadMoreBtn = document.getElementById("loadMoreBtn");
@@ -130,6 +137,7 @@ darkToggle.addEventListener("click", () => {
   }
 });
 
+// Render posts con paginación
 function renderPosts() {
   const end = currentPage * postsPerPage;
   const postsToShow = filteredPosts.slice(0, end);
@@ -138,23 +146,32 @@ function renderPosts() {
   postsToShow.forEach(post => {
     const card = document.createElement("div");
     card.className = "post-card fade-up";
+    card.style.cursor = "pointer";
+    card.setAttribute("data-id", post.id);
+    
     let mediaHtml = "";
-    if (post.image) {
+    if (post.videoId) {
+      // Usar miniatura de YouTube
+      const thumbUrl = getYouTubeThumbnail(post.videoId);
+      mediaHtml = `<img src="${thumbUrl}" alt="Video: ${post.title}" class="post-image" loading="lazy" onerror="this.src='https://img.youtube.com/vi/${post.videoId}/hqdefault.jpg'">`;
+    } else if (post.image) {
       mediaHtml = `<img src="${post.image}" alt="${post.title}" class="post-image" loading="lazy">`;
-    } else if (post.videoId) {
-      mediaHtml = `<div class="post-video-placeholder"><i class="fab fa-youtube"></i></div>`;
     } else {
       mediaHtml = `<div class="post-video-placeholder" style="background:var(--primary-light);"><i class="fas fa-brain"></i></div>`;
     }
+    
     card.innerHTML = `
       ${mediaHtml}
       <div class="post-content">
         <span class="post-category">${post.category === "psicopedagogia" ? "🧠 Psicopedagogía" : post.category === "coaching" ? "✨ Coaching" : "📌 Dato curioso"}</span>
         <h3 class="post-title">${post.title}</h3>
         <p class="post-excerpt">${post.excerpt.substring(0, 100)}...</p>
-        <button class="read-more-btn" data-id="${post.id}">Leer más <i class="fas fa-arrow-right"></i></button>
       </div>
     `;
+    
+    // Evento click en toda la tarjeta
+    card.addEventListener("click", () => openModal(post));
+    
     postsGrid.appendChild(card);
   });
   
@@ -164,6 +181,7 @@ function renderPosts() {
     loadMoreContainer.style.display = "none";
   }
   
+  // Animaciones fade-up
   const fadeElements = document.querySelectorAll(".fade-up");
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
@@ -171,31 +189,22 @@ function renderPosts() {
     });
   }, { threshold: 0.1 });
   fadeElements.forEach(el => observer.observe(el));
-  
-  document.querySelectorAll(".read-more-btn").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      const id = parseInt(btn.getAttribute("data-id"));
-      const fullPost = filteredPosts.find(p => p.id === id);
-      if (fullPost) openModal(fullPost);
-    });
-  });
 }
 
 function openModal(post) {
   let mediaInside = "";
+  // Solo agregar el video si el artículo tiene videoId (y no duplicar contenido ya incluido en .content)
   if (post.videoId) {
-    // Agregamos un pequeño script para detectar si el iframe falla
     mediaInside = `
-      <div class="video-responsive" id="videoContainer">
+      <div class="video-responsive">
         <iframe src="https://www.youtube.com/embed/${post.videoId}" title="YouTube video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
       </div>
-      <div id="videoFallbackMsg" style="display:none; background:#ffeeee; padding:0.8rem; border-radius:20px; margin-top:0.5rem; text-align:center; font-size:0.85rem;">
-        <i class="fas fa-exclamation-triangle"></i> No se pudo cargar el video. Asegurate de tener conexión a internet y que el video permita inserción.
-      </div>
     `;
-  } else if (post.image) {
+  } else if (post.image && !post.content.includes(post.image)) {
+    // Evitar duplicar la imagen si ya está en el contenido
     mediaInside = `<img src="${post.image}" alt="${post.title}" style="width:100%; border-radius: 24px; margin: 1rem 0;">`;
   }
+  
   modalBody.innerHTML = `
     <h3 style="font-family:'Playfair Display';">${post.title}</h3>
     <div class="post-meta" style="color:var(--text-secondary); margin-bottom:1rem;"><i class="far fa-calendar-alt"></i> ${post.date}</div>
@@ -203,22 +212,12 @@ function openModal(post) {
     <div>${post.content}</div>
   `;
   modal.style.display = "flex";
-  
-  // Detectar fallo del iframe (opcional)
-  if (post.videoId) {
-    const iframe = modalBody.querySelector("iframe");
-    if (iframe) {
-      iframe.onerror = () => {
-        const fallback = document.getElementById("videoFallbackMsg");
-        if (fallback) fallback.style.display = "block";
-      };
-    }
-  }
 }
 
 closeModal.addEventListener("click", () => { modal.style.display = "none"; });
 window.addEventListener("click", (e) => { if (e.target === modal) modal.style.display = "none"; });
 
+// Filtros
 function applyFilter(filter) {
   currentFilter = filter;
   currentPage = 1;
@@ -234,6 +233,7 @@ filterBtns.forEach(btn => {
   });
 });
 
+// Load more
 if (loadMoreBtn) {
   loadMoreBtn.addEventListener("click", () => {
     currentPage++;
@@ -241,6 +241,7 @@ if (loadMoreBtn) {
   });
 }
 
+// Curiosidades dinámicas
 function updateCuriosity(index) {
   const item = curiositiesDB[index % curiositiesDB.length];
   curiosityTextEl.innerText = item.text;
@@ -256,6 +257,7 @@ nextCuriosity.addEventListener("click", () => {
   updateCuriosity(currentCuriosityIndex);
 });
 
+// Scroll top y menú hamburguesa
 window.addEventListener("scroll", () => {
   if (window.scrollY > 400) scrollTopBtn.classList.add("visible");
   else scrollTopBtn.classList.remove("visible");
@@ -275,6 +277,7 @@ if (menuToggle) {
   });
 }
 
+// Inicialización
 function init() {
   initDarkMode();
   applyFilter("all");
@@ -283,6 +286,7 @@ function init() {
 }
 init();
 
+// Botón contacto modal
 document.getElementById("modalContactBtn")?.addEventListener("click", () => {
   window.open("https://wa.me/5493874433296?text=Hola%20Mara%2C%20leo%20tu%20blog%20y%20me%20interesa%20consultarte", "_blank");
 });
